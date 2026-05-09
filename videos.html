@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demos — Robo Ball</title>
+  <meta name="description" content="Demo videos of the ball juggling robot in action." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html" class="brand">Robo<span>Ball</span></a>
+      <ul>
+        <li><a class="nav-link" href="goal.html">Goal</a></li>
+        <li><a class="nav-link active" href="videos.html">Demos</a></li>
+        <li><a class="nav-link" href="design.html">Design</a></li>
+        <li><a class="nav-link" href="perception.html">Perception</a></li>
+        <li><a class="nav-link" href="planning.html">Planning</a></li>
+        <li><a class="nav-link" href="challenges.html">Challenges</a></li>
+        <li><a class="nav-link" href="future.html">Future</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="videos-page">
+    <header class="videos-hero reveal">
+      <p class="eyebrow">Demos</p>
+      <h1>Watch the robot juggle.</h1>
+      <p>Scroll through every angle, every catch, every miss — the way it actually happened.</p>
+    </header>
+
+    <!--
+      To swap a placeholder for a real video, replace the .video-placeholder div with:
+        <video src="videos/your-file.mp4" muted loop playsinline preload="metadata"
+               poster="videos/your-file-poster.jpg"></video>
+      The IntersectionObserver script at the bottom will auto-play it when in view.
+    -->
+
+    <!-- 01 — Full-bleed opening shot -->
+    <section class="video-section full-bleed reveal">
+      <div class="video-frame ar-16-9">
+        <div class="video-placeholder tint-blue">opening shot · horizontal</div>
+      </div>
+      <p class="video-cap">01 · The first time it actually worked.</p>
+    </section>
+
+    <!-- 02 — Split: text left, vertical right -->
+    <section class="video-section split reveal">
+      <div class="split-text">
+        <span class="section-num">02</span>
+        <h2>Catching a falling ball<br />in under 200 ms.</h2>
+        <p>From the side, the timing barely registers — the arm starts moving the moment the camera sees the ball leave the apex.</p>
+      </div>
+      <div class="video-frame ar-9-16">
+        <div class="video-placeholder tint-purple">side angle · vertical</div>
+      </div>
+    </section>
+
+    <!-- 03 — Cluster of three vertical clips, staggered -->
+    <section class="video-section cluster reveal">
+      <span class="section-num">03</span>
+      <h2>From every angle.</h2>
+      <div class="cluster-grid">
+        <div class="video-frame ar-9-16">
+          <div class="video-placeholder tint-pink">angle 1 · vertical</div>
+        </div>
+        <div class="video-frame ar-9-16 offset-down">
+          <div class="video-placeholder tint-green">angle 2 · vertical</div>
+        </div>
+        <div class="video-frame ar-9-16 offset-up">
+          <div class="video-placeholder tint-orange">angle 3 · vertical</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 — Split reverse: vertical left, text right -->
+    <section class="video-section split reverse reveal">
+      <div class="video-frame ar-9-16">
+        <div class="video-placeholder tint-yellow">top-down · vertical</div>
+      </div>
+      <div class="split-text">
+        <span class="section-num">04</span>
+        <h2>Top-down,<br />in slow motion.</h2>
+        <p>Slowed to a quarter speed so you can see the planner correcting the catch point as the ball moves.</p>
+      </div>
+    </section>
+
+    <!-- 05 — Wide horizontal centerpiece -->
+    <section class="video-section wide reveal">
+      <span class="section-num">05</span>
+      <div class="video-frame ar-16-9">
+        <div class="video-placeholder tint-blue">continuous run · horizontal</div>
+      </div>
+      <p class="video-cap">A clean run of consecutive catches, uncut.</p>
+    </section>
+
+    <!-- 06 — Finale -->
+    <section class="video-section finale reveal">
+      <span class="section-num">06</span>
+      <h2>The final demo.</h2>
+      <div class="video-frame ar-16-9">
+        <div class="video-placeholder tint-purple">final demo · horizontal</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
+  </footer>
+
+  <script>
+    // Reveal sections as they scroll into view
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+    reveals.forEach((el) => revealObs.observe(el));
+
+    // Auto-play videos when on screen, pause when scrolled away
+    const videos = document.querySelectorAll('.video-frame video');
+    const videoObs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.play().catch(() => {});
+        } else {
+          entry.target.pause();
+        }
+      });
+    }, { threshold: 0.5 });
+    videos.forEach((v) => videoObs.observe(v));
+  </script>
+</body>
+</html>

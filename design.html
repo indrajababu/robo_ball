@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design — Robo Ball</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html" class="brand">Robo<span>Ball</span></a>
+      <ul>
+        <li><a class="nav-link" href="goal.html">Goal</a></li>
+        <li><a class="nav-link" href="videos.html">Demos</a></li>
+        <li><a class="nav-link active" href="design.html">Design</a></li>
+        <li><a class="nav-link" href="perception.html">Perception</a></li>
+        <li><a class="nav-link" href="planning.html">Planning</a></li>
+        <li><a class="nav-link" href="challenges.html">Challenges</a></li>
+        <li><a class="nav-link" href="future.html">Future</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Design</h1>
+    <p class="subtitle">The CADed end-effector and the ROS nodes and controllers that drive the robot end-to-end.</p>
+
+    <h2>End-effector</h2>
+    <p>The paddle is a custom part we modeled in CAD to mate with the arm's tool flange. It's sized and shaped for a predictable contact patch with the ball, with mounting features that stay rigid through repeated bounces.</p>
+
+    <figure>
+      <figcaption>CAD render / photo of the end-effector goes here.</figcaption>
+    </figure>
+
+    <h3>Geometry</h3>
+    <p>Why we picked this paddle face — size, curvature, and the contact surface that keeps the bounce repeatable.</p>
+
+    <h3>Mount</h3>
+    <p>The bolt pattern and adapter ring that mate the paddle to the wrist flange.</p>
+
+    <h3>Iterations</h3>
+    <p>How the design evolved across test runs — what failed, what we tightened up, and what we'd change next.</p>
+
+    <h2>Software architecture</h2>
+    <p>The juggling stack is split into ROS nodes that each own one job, connected by topics and services. Keeping the boundaries clean meant we could swap a controller or retune a predictor without touching the rest of the pipeline.</p>
+
+    <figure>
+      <figcaption>System diagram: perception → predictor → planner → controller.</figcaption>
+    </figure>
+
+    <h3>Nodes</h3>
+    <ul>
+      <li><strong>Perception node</strong> — ingests camera frames and publishes ball position.</li>
+      <li><strong>Trajectory predictor</strong> — fits a projectile model to recent positions and publishes a predicted catch point and time.</li>
+      <li><strong>Planner</strong> — generates a joint-space trajectory from the current pose to the catch point.</li>
+      <li><strong>Bringup / state machine</strong> — coordinates startup, calibration, and the bounce-and-catch loop.</li>
+    </ul>
+
+    <h3>Controllers</h3>
+    <ul>
+      <li><strong>Joint controller</strong> — low-level position/velocity loop and the gains we landed on.</li>
+      <li><strong>Trajectory tracking</strong> — how planned waypoints are fed to the joint controller.</li>
+      <li><strong>Safety</strong> — joint limits, velocity caps, and the e-stop path.</li>
+    </ul>
+  </main>
+
+  <footer class="site-footer">
+    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
+  </footer>
+</body>
+</html>

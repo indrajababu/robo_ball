@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robo Ball — Ball Juggling Robot</title>
+  <meta name="description" content="A ball juggling robot project: design, perception, planning, and challenges." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html" class="brand">Robo<span>Ball</span></a>
+      <ul>
+        <li><a class="nav-link" href="goal.html">Goal</a></li>
+        <li><a class="nav-link" href="videos.html">Demos</a></li>
+        <li><a class="nav-link" href="design.html">Design</a></li>
+        <li><a class="nav-link" href="perception.html">Perception</a></li>
+        <li><a class="nav-link" href="planning.html">Planning</a></li>
+        <li><a class="nav-link" href="challenges.html">Challenges</a></li>
+        <li><a class="nav-link" href="future.html">Future</a></li>
+      </ul>
+      <a href="goal.html" class="btn btn-primary btn-sm">Get started</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <img src="assets/robot-arm-left.png" alt="" class="robot-arm robot-arm-left" aria-hidden="true" />
+    <img src="assets/robot-arm-right.png" alt="" class="robot-arm robot-arm-right" aria-hidden="true" />
+    <div class="ball-track" aria-hidden="true">
+      <div class="ball-x">
+        <div class="ball-y">
+          <div class="ball"></div>
+        </div>
+      </div>
+    </div>
+    <h1>A robot arm that <br /><span class="gradient-text"> won't drop the ball.</span></h1>
+    <p class="lead">
+      Robo Ball turns physics, perception, and motion planning into a robot that
+      bounces a ball in real time. Explore how we built it.
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="goal.html">Learn about the project</a>
+      <a class="btn" href="design.html">Explore the design →</a>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-visual-frame">
+        <span class="hero-visual-placeholder">drop a hero image or video here</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="logo-strip">
+    <p>Built with</p>
+    <div class="logos">
+      <span>ROS 2</span>
+      <span>Python</span>
+    </div>
+  </section>
+
+  <section class="feature-section">
+    <div class="feature-text">
+      <p class="eyebrow">Perception</p>
+      <h2>See the ball in real time, every frame.</h2>
+      <p>
+        A high-frame-rate camera and a tight detection pipeline locate the ball
+        with millisecond latency, so the robot has time to react before the ball
+        lands.
+      </p>
+      <a href="perception.html" class="arrow-link">Learn how perception works →</a>
+    </div>
+    <div class="feature-visual tint-blue">perception preview</div>
+  </section>
+
+  <section class="feature-section reverse">
+    <div class="feature-text">
+      <p class="eyebrow">Planning</p>
+      <h2>Predict the trajectory, then move.</h2>
+      <p>
+        From a stream of ball positions we fit a projectile model, solve for the
+        catch point, and generate a joint trajectory the robot can actually
+        execute in time.
+      </p>
+      <a href="planning.html" class="arrow-link">See the planning stack →</a>
+    </div>
+    <div class="feature-visual tint-purple">trajectory preview</div>
+  </section>
+
+  <section class="feature-section">
+    <div class="feature-text">
+      <p class="eyebrow">Design</p>
+      <h2>A CADed paddle, driven by a clean node graph.</h2>
+      <p>
+        We designed the end-effector in CAD to fit the arm's tool flange, then
+        built the ROS nodes and controllers that turn camera frames into joint
+        commands.
+      </p>
+      <a href="design.html" class="arrow-link">See the end-effector and node graph →</a>
+    </div>
+    <div class="feature-visual tint-pink">CAD render</div>
+  </section>
+
+  <div class="section-heading">
+    <h2>Explore the project</h2>
+    <p>Every part of how we built a juggling robot, in one place.</p>
+  </div>
+
+  <section class="card-grid">
+    <a class="card" href="goal.html">
+      <div class="card-thumb tint-blue"></div>
+      <h3>Goal</h3>
+      <p>What we set out to build, and why ball juggling is hard.</p>
+    </a>
+    <a class="card" href="design.html">
+      <div class="card-thumb tint-purple"></div>
+      <h3>Design</h3>
+      <p>The CADed end-effector and the ROS nodes that drive the robot.</p>
+    </a>
+    <a class="card" href="perception.html">
+      <div class="card-thumb tint-pink"></div>
+      <h3>Perception</h3>
+      <p>How the robot sees and tracks the ball in real time.</p>
+    </a>
+    <a class="card" href="planning.html">
+      <div class="card-thumb tint-green"></div>
+      <h3>Planning</h3>
+      <p>Trajectory generation and control for catching and tossing.</p>
+    </a>
+    <a class="card" href="challenges.html">
+      <div class="card-thumb tint-orange"></div>
+      <h3>Challenges</h3>
+      <p>The hardest problems we ran into and how we worked around them.</p>
+    </a>
+    <a class="card" href="future.html">
+      <div class="card-thumb tint-yellow"></div>
+      <h3>Future improvements</h3>
+      <p>What we'd build next given more time.</p>
+    </a>
+  </section>
+
+  <section class="cta-banner">
+    <h2>Curious how it all comes together?</h2>
+    <p>Start with the project goal — a quick read on what we built and why.</p>
+    <a href="goal.html" class="btn">Read the project goal →</a>
+  </section>
+
+  <footer class="site-footer">
+    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
+  </footer>
+</body>
+</html>

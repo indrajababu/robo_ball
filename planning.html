@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planning — Robo Ball</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html" class="brand">Robo<span>Ball</span></a>
+      <ul>
+        <li><a class="nav-link" href="goal.html">Goal</a></li>
+        <li><a class="nav-link" href="videos.html">Demos</a></li>
+        <li><a class="nav-link" href="design.html">Design</a></li>
+        <li><a class="nav-link" href="perception.html">Perception</a></li>
+        <li><a class="nav-link active" href="planning.html">Planning</a></li>
+        <li><a class="nav-link" href="challenges.html">Challenges</a></li>
+        <li><a class="nav-link" href="future.html">Future</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Planning &amp; Control</h1>
+    <p class="subtitle">Predicting where the ball will be, and getting the robot there in time.</p>
+
+    <h2>Trajectory prediction</h2>
+    <p>How you predict the ball's future position — projectile model, fitted curve, learned model, etc.</p>
+
+    <h2>Motion planning</h2>
+    <p>Given a target catch point and time, how do you compute joint trajectories? Inverse kinematics, optimization, lookup table?</p>
+
+    <h2>Control loop</h2>
+    <p>Describe the control architecture: rate, structure (PID, feedforward, MPC), and how perception updates feed in.</p>
+
+    <figure>
+      <figcaption>Add a diagram of the control loop here.</figcaption>
+    </figure>
+
+    <h2>Tossing strategy</h2>
+    <p>If the robot also tosses the ball, explain the release timing and velocity strategy.</p>
+
+    <h2>Calibration</h2>
+    <p>Hand-eye calibration, camera intrinsics, and any other calibration steps.</p>
+  </main>
+
+  <footer class="site-footer">
+    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
+  </footer>
+</body>
+</html>
