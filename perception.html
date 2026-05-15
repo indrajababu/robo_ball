@@ -15,7 +15,6 @@
       <a href="index.html" class="brand">Robo<span>Ball</span></a>
       <ul>
         <li><a class="nav-link" href="goal.html">Goal</a></li>
-        <li><a class="nav-link" href="videos.html">Demos</a></li>
         <li><a class="nav-link" href="design.html">Design</a></li>
         <li><a class="nav-link active" href="perception.html">Perception</a></li>
         <li><a class="nav-link" href="planning.html">Planning</a></li>
@@ -27,37 +26,47 @@
 
   <main>
     <h1>Perception</h1>
-    <p class="subtitle">How the robot sees and tracks the ball.</p>
-
-    <h2>Sensor setup</h2>
-    <p>Camera type, frame rate, resolution, and how it's mounted relative to the robot.</p>
-
-    <h2>Ball detection</h2>
-    <p>Describe the detection pipeline (color thresholding, blob detection, neural net, etc.).</p>
-
-    <pre><code># Pseudocode of detection loop
-while True:
-    frame = camera.read()
-    mask = threshold(frame, color=BALL_COLOR)
-    (x, y, r) = largest_blob(mask)
-    publish(ball_position=(x, y), radius=r)</code></pre>
-
-    <h2>3D position estimation</h2>
-    <p>How do you go from pixels to a 3D ball position? Stereo, depth camera, projectile model, or assumed plane?</p>
-
-    <h2>Tracking & filtering</h2>
-    <p>Kalman filter, particle filter, simple smoothing — explain your choice and why.</p>
+    <p>
+      We used HSV (hue-saturation-value) thresholding to determine the ball pose with low latency and reasonable accuracy.
+    </p>
 
     <figure>
-      <figcaption>Add a chart showing tracked ball trajectory vs. ground truth.</figcaption>
+      <img src="assets/perception_realsense.jpg" alt="Intel RealSense camera" />
+      <figcaption>RealSense camera.</figcaption>
     </figure>
 
-    <h2>Latency</h2>
-    <p>Measured end-to-end perception latency and why it matters for catching a ball.</p>
+    <h2>What is HSV?</h2>
+    <p>
+      HSV breaks every pixel into hue (which color it is, like red versus blue versus green), saturation (how vivid that color is versus how washed-out or grey), and value (how bright it is). Thresholding on those three lets us pick out the red-orange ball without false matches on shadowed or pale surfaces that share the same hue.
+    </p>
+
+    <h2>The core pipeline</h2>
+
+    <h3>1. Register the camera with ArUco to put base_link and camera_link in the same frame</h3>
+    <p>
+      An ArUco marker is mounted on the UR7e base at a known offset. The aruco node finds it in the RealSense color stream, and the static_camera_tf node chains the detection with the fixed marker-to-base offset to solve for a one-time base_link to camera_link static transform. Every detection downstream then comes out directly in base_link coordinates, so the rest of the pipeline never has to do per-frame transform work between camera and robot frames.
+    </p>
+
+    <h3>2. Threshold the RealSense RGB-depth point cloud based on tuned HSV values</h3>
+    <p>
+      The RealSense publishes a depth-aligned color point cloud at 30 Hz on <code>/camera/camera/depth/color/points</code>. We pull the packed RGB field off every point, convert it to HSV, and apply a tuned color mask in one vectorized pass. The default bounds (H in [0, 12], S in [120, 255], V in [80, 255]) are tuned for the red-orange ball under the lab lighting. We also subsample the cloud by a stride of 2 before masking, which roughly halves the per-frame point count.
+    </p>
+
+    <h3>3. Drop outliers within a workspace box and average to compute the centroid</h3>
+    <p>
+      After the HSV mask we AND the surviving points with a fixed workspace bounding box in base_link coordinates (roughly x in [-0.8, 0.8] m, y in [-0.8, 0.8] m, z in [0, 2] m). That throws out anything matching the ball's color but sitting somewhere physically impossible, like wall reflections, the operator's clothes, or light fixtures. If fewer than about 20 points survive both filters we skip the frame entirely. Otherwise we take the mean of the remaining XYZ points as the ball centroid and publish it as <code>/ball_pose</code> for the trajectory predictor and the controller to consume.
+    </p>
+
+    <figure>
+      <img src="assets/perception_hsv_filtered.png" alt="Camera view with detected centroid and 3D filtered point cloud with centroid" />
+      <figcaption>Left: the RealSense color frame with the published centroid drawn back on top of the ball. Right: the same frame's surviving HSV-filtered points in base_link coordinates, with the centroid marked in red.</figcaption>
+    </figure>
+
+    <h2>Why HSV instead of YOLO</h2>
+    <p>
+      We started with YOLOv8 against the color image, but even with inference capped at 8 Hz it added too much latency for the trajectory predictor to fit a velocity in time. The HSV pass on the cloud is just a NumPy mask, so it adds almost nothing on top of the cloud arriving, and the perception loop ends up bottlenecked by the RealSense's RGB stream itself rather than by our model.
+    </p>
   </main>
 
-  <footer class="site-footer">
-    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
-  </footer>
 </body>
 </html>

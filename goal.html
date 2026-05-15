@@ -15,7 +15,6 @@
       <a href="index.html" class="brand">Robo<span>Ball</span></a>
       <ul>
         <li><a class="nav-link active" href="goal.html">Goal</a></li>
-        <li><a class="nav-link" href="videos.html">Demos</a></li>
         <li><a class="nav-link" href="design.html">Design</a></li>
         <li><a class="nav-link" href="perception.html">Perception</a></li>
         <li><a class="nav-link" href="planning.html">Planning</a></li>
@@ -27,11 +26,20 @@
 
   <main>
     <h1>Project Goal</h1>
-    <p class="subtitle">Build a robot that can bounce a ball or balloon consecutively.</p>
 
     <h2>Goal</h2>
     <p>
-      Build a robot that can bounce a ball or balloon consecutively.
+      Our goal was to control an arm to bounce a ball or balloon repeatedly over numerous attempts.
+    </p>
+    <p>
+      We targeted around 4-6 consecutive bounces as a practical benchmark for robustness and to show the system could truly "control" the balloon rather than getting lucky on a single hit.
+    </p>
+    <figure>
+      <img src="assets/roboball_goal.png" alt="Robot arm setup for repeated ball bouncing goal" class="goal-photo" />
+      <figcaption>The setup we used - keep end-effector at a flat orientation and drop the ball above it</figcaption>
+    </figure>
+    <p>
+      We identified the three following things as necessary in order to bounce the ball repeatedly.
     </p>
 
     <h2>This means:</h2>
@@ -40,10 +48,16 @@
       <li>Pop up to strike the ball or balloon upward.</li>
       <li>Recover down to a base value to prepare for the next upward strike.</li>
     </ul>
+    <figure>
+      <img src="assets/roboball_goal_hand.jpg" alt="Hand-drawn illustration of the three core control goals" class="goal-diagram" />
+      <figcaption>Illustration of our three-step process / nodes</figcaption>
+    </figure>
+
+    <h2>Evaluation</h2>
+    <p>
+      Ultimately, we were able to get the balloon bouncing consistently between 3-6 times depending on whether or not the balloon accidentally exited a safe range for the robot to hit. For the ball, we were able to get the bouncing working for 1-2 times. Bouncing a proper ball was more difficult because of the higher velocities, latency issues (Realsense cameras to go beyond 30Hz for RGB), and more force required to lift the ball.
+    </p>
   </main>
 
-  <footer class="site-footer">
-    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
-  </footer>
 </body>
 </html>
