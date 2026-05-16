@@ -30,6 +30,7 @@
 
     <h2>Sensing</h2>
     <ul>
+      <li>Increase the reaction time of the robot by improving perception update rate</li>
       <li>Try utilizing only the depth/infrared camera so we would not have to worry about the 30 Hz RGB limit on Realsense.</li>
       <li>Fuse HSV and depth clustering for more reliable centroid measurements.</li>
       <li>Track the ball across frames and smooth out noise to prevent perceived jittery motion.</li>
@@ -37,6 +38,7 @@
 
     <h2>Planning</h2>
     <ul>
+      <li>Implement trajectory prediction: right now we're naively shadowing the ball which made it really hard react accordingly to the ball drops</li>
       <li>Time the latency delay between sensing and the forward velocity controller and adjust paddle pop accordingly.</li>
       <li>Currently track velocity realtime -> keep a running state of ball velocity to ensure smoother timing.</li>
       <li>Dynamically update strike height based on current paddle position and the ball velocity.</li>

@@ -26,38 +26,37 @@
 
   <main>
     <h1>Planning &amp; Control</h1>
-    <p class="subtitle">Predicting where the ball will be, and getting the robot there in time.</p>
+    <p class="subtitle">Keeping it Up</p>
 
     <section>
-      <h2>Trajectory prediction</h2>
-
-      <h3>Position</h3>
-      <p>Using a simple kinematics model to calculate future x, y, and z positions</p>
-
-      <p>
-        <code>p1 = v * t_ball_state_period + p0</code>
+      <h2>Overview</h2>
+      <p>We design the paddle to shadow the <code>x</code> and <code>y</code> positions of the balloon at a default <code>z</code> height and "pop" to a preset <code>z</code> height when the balloon is expected to reach the paddle's default height.</p>
+      <p>We keep the paddle tilted toward the center of the drop zone, while holding the paddle at the higher <code>z</code> position for a set number of control ticks.</p>
+      <p>All target paddle poses are converted into target tool poses and sent to the default <code>MoveIt</code> IK service, which returns target joint states that we convert into velocity commands with a simple custom <code>PID</code> controller.</p>
+      </section>
+    
+      <section>
+      <h2>Balloon Prediction</h2>
+      <p> We subscribe to <code>/ball_pose</code>and maintain a rolling buffer of samples and select the most recent samples to make a simple ballistic model to estimate the ball's position and velocity. </p> 
+      <p> We treat <code>x</code> and <code>y</code> motion as linear, while correcting <code>z</code> motion for gravity. The resulting position and velocity are published as <code>/ball_state</code> for
+  the horizontal tracker.
       </p>
+      
+      <h2>Paddle Planning </h2>
+      <h3>Shadow (<code>x</code>/<code>y</code> component of motion)</h3>
+      <h4>Position</h4>
+      <p>We subscribe to <code>/ball_state</code>, which publishes at about <code>30 Hz</code>, and set the target <code>x</code> and <code>y</code> positions of the paddle to the most recent <code>x</code> and <code>y</code> positions of the ball in the <code>base_link</code> frame.</p>
+      <p>We orient the paddle so it points away from the robot and toward the center of the drop zone, keeping in mind that the paddle normal is in the tool frame's <code>-x</code> direction.</p>
+      <p><code>desired_normal = p_center - desired_p_tool</code></p>
 
-      <h3>Orientation</h3>
-      <p>Keep the paddle slightly tilted towards a drop zone</p>
-      <p>Combine current tool quat and quat determined by a normal vector pointing from tool position to point above the drop zone center</p>
-
-      <p>
-        <code>desired_normal = p_center - desired_p_tool</code>
-      </p>
-
-      <p>
-        <code>current_normal = - first vector of quat_to_rot(current_quat)</code>
-      </p>
-
-      <p>default up-direction for tool is <code>-x</code></p>
+      <p><code>current_normal = - first vector of quat_to_rot(current_quat)</code></p>
 
       <p>
         <code>normalize desired_normal, current_normal</code>
       </p>
 
       <p>
-        <code>axis = desired_normal × current_normal</code>
+        <code>axis = current_normal × desired_normal</code>
       </p>
 
       <p>
@@ -67,248 +66,29 @@
       <p>
         <code>quat from axis, angle</code>
       </p>
+      <h3>Strike (<code>z</code> component of motion)</h3>
+      <p>We extract the balloon's <code>z</code> velocity and use two conditions to decide when the paddle should pop: whether the balloon is low enough, or whether it is moving fast enough to hit the paddle within a set time window.</p>
+      <p>When the paddle is popping, it holds the higher <code>z</code> position for a set number of control ticks and then returns to the default <code>z</code> position.</p>
+    
     </section>
 
     <section>
-      <h2>Motion planning</h2>
-
-      <p>Given a future ball position, calculate the offset between the wrist_3_link and the paddle end-effector</p>
-      <p>Use MoveIt IK service to generate joint states from the predicted paddle position</p>
+      
+    </section>
+      
+      <h2> Control Loop</h2>
+      <h3>IK Conversions</h3>
+      <p>We align the paddle, not the robot end effector itself, with the ball position by transforming the target paddle pose back into a target tool pose that accounts for the offset between <code>wrist_3_link</code> and the paddle.</p>
+      <p>We also clamp the target <code>x</code>/<code>y</code> position away from the robot body using <code>min_body_clearance_radius</code>, to prevent joint collisions or the arm moving through the base.</p>
+      <p>We use the <code>MoveIt</code> IK service to generate target joint states from the target tool pose.</p>
+      <p>After IK, we reject solutions with large joint-space jumps using <code>max_ik_joint_delta</code>, which helps avoid sudden branch changes in the IK solution.</p>
+      <h3>Shadow vs. Strike PID</h3> 
+      <p>We use stronger <code>PID</code> <code>K_p</code> coefficients when commanding upward paddle velocity so the balloon bounces high enough.</p>
+      <p>We command stronger motion for joints closer to <code>base_link</code> to compensate for greater joint resistance.</p>
     </section>
 
-    <section>
-      <h2>Control loop</h2>
-      <h3> Components </h3></p>
-      <h4> IK</h4>
-      <h4> PID </h4>
-      <p>PID controller uses two sets</p>
 
-      <dl>
-        <dt>Ball state update rate</dt>
-        <dd>33 Hz</dd>
 
-        <dt>Control loop update rate</dt>
-        <dd>34 Hz</dd>
-      </dl>
-
-      <h3>Control loop tick</h3>
-
-      <pre><code>if ball_state_valid:
-    set goal_xy to be the current ball_state
-
-    if ball is within ball_clearance or is descending with min_descending_velocity_threshold:
-        set goal z to be the pop height
-        use vertical PID (Kp_vertical = 2.5 * Kp_normal)
-    else:
-        set goal z to be the default height
-        use normal PID</code></pre>
-
-      <p>Describe the control architecture: rate, structure (PID, feedforward, MPC), and how perception updates feed in.</p>
-
-        <figure class="control-diagram">
-  <style>
-    .control-diagram {
-      margin: 2rem 0;
-      padding: 1rem;
-      border: 1px solid #111;
-      border-radius: 12px;
-      overflow-x: auto;
-    }
-
-    .control-diagram svg {
-      width: 100%;
-      min-width: 900px;
-      height: auto;
-      font-family: Rubik, Arial, sans-serif;
-    }
-
-    .box {
-      fill: #fff;
-      stroke: #111;
-      stroke-width: 2;
-    }
-
-    .inner-box {
-      fill: #f7f7f7;
-      stroke: #111;
-      stroke-width: 1.5;
-    }
-
-    .label {
-      font-size: 16px;
-      fill: #111;
-    }
-
-    .small {
-      font-size: 13px;
-      fill: #111;
-    }
-
-    .tiny {
-      font-size: 11px;
-      fill: #111;
-    }
-
-    .title {
-      font-size: 18px;
-      font-weight: 700;
-      fill: #111;
-    }
-
-    .arrow {
-      stroke: #111;
-      stroke-width: 2;
-      fill: none;
-      marker-end: url(#arrowhead);
-    }
-
-    .feedback {
-      stroke: #111;
-      stroke-width: 2;
-      fill: none;
-      stroke-dasharray: 7 5;
-      marker-end: url(#arrowhead);
-    }
-
-    .arrow-label-bg {
-      fill: #fff;
-    }
-
-    .arrow-label {
-      font-size: 12px;
-      font-weight: 600;
-      fill: #111;
-    }
-  </style>
-
-  <svg viewBox="0 0 1150 650" role="img" aria-labelledby="control-title control-desc">
-    <title id="control-title">Horizontal pop tracker control loop</title>
-    <desc id="control-desc">
-      The horizontal pop tracker subscribes to ball state and joint states, runs a 30 Hz control tick,
-      uses IK and PID internally, and publishes velocity commands to the forward velocity controller.
-    </desc>
-
-    <defs>
-      <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-        <path d="M0,0 L10,4 L0,8 Z" fill="#111"></path>
-      </marker>
-    </defs>
-
-    <!-- Left input topics -->
-    <rect class="box" x="40" y="110" width="190" height="85" rx="12"></rect>
-    <text class="title" x="135" y="143" text-anchor="middle">/ball_state</text>
-    <text class="small" x="135" y="168" text-anchor="middle">BallState</text>
-    <text class="tiny" x="135" y="187" text-anchor="middle">perception update ~33 Hz</text>
-
-    <rect class="box" x="40" y="290" width="190" height="85" rx="12"></rect>
-    <text class="title" x="135" y="323" text-anchor="middle">/joint_states</text>
-    <text class="small" x="135" y="348" text-anchor="middle">JointState</text>
-    <text class="tiny" x="135" y="367" text-anchor="middle">robot feedback</text>
-
-    <!-- Main node -->
-    <rect class="box" x="320" y="70" width="430" height="390" rx="16"></rect>
-    <text class="title" x="535" y="105" text-anchor="middle">horizontal_pop_tracker</text>
-    <text class="small" x="535" y="130" text-anchor="middle">ROS node</text>
-
-    <!-- Control tick inside node -->
-    <rect class="inner-box" x="355" y="160" width="360" height="250" rx="14"></rect>
-    <text class="title" x="535" y="192" text-anchor="middle">control tick</text>
-    <text class="small" x="535" y="217" text-anchor="middle">fires every 0.033s ≈ 30 Hz</text>
-
-    <text class="small" x="385" y="252">1. check ball_state_valid</text>
-    <text class="small" x="385" y="280">2. goal_xy from trajectory of current ball_state</text>
-    <text class="small" x="385" y="308">3. choose nominal z or pop z</text>
-    <text class="small" x="385" y="336">4. compute paddle orientation</text>
-    <text class="small" x="385" y="364">5. ask IK for target joint state</text>
-    <text class="small" x="385" y="392">6. PID computes joint velocity command</text>
-
-    <!-- IK and PID as internal collaborators -->
-    <rect class="inner-box" x="805" y="120" width="260" height="95" rx="12"></rect>
-    <text class="title" x="935" y="153" text-anchor="middle">MoveIt IK service</text>
-    <text class="small" x="935" y="179" text-anchor="middle">target tool pose</text>
-    <text class="small" x="935" y="199" text-anchor="middle">→ target joint state</text>
-
-    <rect class="inner-box" x="805" y="285" width="260" height="95" rx="12"></rect>
-    <text class="title" x="935" y="318" text-anchor="middle">custom PID controller</text>
-    <text class="small" x="935" y="344" text-anchor="middle">target joints + current joints</text>
-    <text class="small" x="935" y="364" text-anchor="middle">→ joint velocity command</text>
-
-    <!-- Output -->
-    <rect class="box" x="805" y="475" width="260" height="90" rx="12"></rect>
-    <text class="title" x="935" y="507" text-anchor="middle">/forward_velocity_controller</text>
-    <text class="small" x="935" y="532" text-anchor="middle">/commands</text>
-    <text class="tiny" x="935" y="552" text-anchor="middle">Float64MultiArray, 6 joint velocities</text>
-
-    <!-- Robot -->
-    <rect class="box" x="470" y="535" width="250" height="75" rx="12"></rect>
-    <text class="title" x="595" y="567" text-anchor="middle">UR7e robot</text>
-    <text class="small" x="595" y="592" text-anchor="middle">physical motion changes state</text>
-
-    <!-- Arrows: subscribes to inputs -->
-    <line class="arrow" x1="230" y1="152" x2="320" y2="190"></line>
-    <rect class="arrow-label-bg" x="238" y="149" width="78" height="18"></rect>
-    <text class="arrow-label" x="277" y="163" text-anchor="middle">subscribes to</text>
-
-    <line class="arrow" x1="230" y1="332" x2="320" y2="335"></line>
-    <rect class="arrow-label-bg" x="238" y="316" width="78" height="18"></rect>
-    <text class="arrow-label" x="277" y="330" text-anchor="middle">subscribes to</text>
-
-    <!-- Control tick to IK -->
-    <path class="arrow" d="M715,245 C760,235 770,175 805,168"></path>
-    <rect class="arrow-label-bg" x="730" y="193" width="63" height="18"></rect>
-    <text class="arrow-label" x="762" y="207" text-anchor="middle">calls IK</text>
-
-    <!-- IK returns -->
-    <path class="arrow" d="M805,205 C770,220 765,275 715,300"></path>
-    <rect class="arrow-label-bg" x="728" y="246" width="72" height="18"></rect>
-    <text class="arrow-label" x="764" y="260" text-anchor="middle">returns joints</text>
-
-    <!-- Control tick to PID -->
-    <path class="arrow" d="M715,335 C750,335 770,333 805,333"></path>
-    <rect class="arrow-label-bg" x="728" y="315" width="72" height="18"></rect>
-    <text class="arrow-label" x="764" y="329" text-anchor="middle">uses PID</text>
-
-    <!-- PID output back into node/output path -->
-    <path class="arrow" d="M935,380 C935,420 790,430 750,430"></path>
-    <rect class="arrow-label-bg" x="790" y="410" width="112" height="18"></rect>
-    <text class="arrow-label" x="846" y="424" text-anchor="middle">velocity command</text>
-
-    <!-- Node publishes to velocity controller -->
-    <path class="arrow" d="M750,430 C790,455 805,495 805,520"></path>
-    <rect class="arrow-label-bg" x="760" y="458" width="78" height="18"></rect>
-    <text class="arrow-label" x="799" y="472" text-anchor="middle">publishes to</text>
-
-    <!-- Velocity controller affects robot -->
-    <path class="arrow" d="M805,545 C770,570 750,572 720,572"></path>
-    <rect class="arrow-label-bg" x="735" y="553" width="58" height="18"></rect>
-    <text class="arrow-label" x="764" y="567" text-anchor="middle">drives</text>
-
-    <!-- Robot feedback to joint state -->
-    <path class="feedback" d="M470,575 C300,575 135,500 135,375"></path>
-    <rect class="arrow-label-bg" x="235" y="538" width="84" height="18"></rect>
-    <text class="arrow-label" x="277" y="552" text-anchor="middle">updates</text>
-
-    <!-- Robot / paddle affects ball state -->
-    <path class="feedback" d="M595,535 C520,45 165,45 135,110"></path>
-    <rect class="arrow-label-bg" x="302" y="53" width="114" height="18"></rect>
-    <text class="arrow-label" x="359" y="67" text-anchor="middle">partially affects</text>
-
-    <!-- Ball state note -->
-    <text class="tiny" x="352" y="86" text-anchor="middle">robot motion can change future ball observations</text>
-  </svg>
-
-  <figcaption>
-    Control loop schematic: the tracker subscribes to perception and robot feedback, runs a 30 Hz control tick,
-    uses IK and PID internally, then publishes joint velocity commands to the forward velocity controller.
-  </figcaption>
-</figure>
-
-    </section>
-
-    <section>
-      <h2>Calibration</h2>
-      <p>Hand-eye calibration, camera intrinsics, and any other calibration steps.</p>
-    </section>
   </main>
 
 </body>
