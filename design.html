@@ -15,7 +15,6 @@
       <a href="index.html" class="brand">Robo<span>Ball</span></a>
       <ul>
         <li><a class="nav-link" href="goal.html">Goal</a></li>
-        <li><a class="nav-link" href="videos.html">Demos</a></li>
         <li><a class="nav-link active" href="design.html">Design</a></li>
         <li><a class="nav-link" href="perception.html">Perception</a></li>
         <li><a class="nav-link" href="planning.html">Planning</a></li>
@@ -27,49 +26,61 @@
 
   <main>
     <h1>Design</h1>
-    <p class="subtitle">The CADed end-effector and the ROS nodes and controllers that drive the robot end-to-end.</p>
 
     <h2>End-effector</h2>
-    <p>The paddle is a custom part we modeled in CAD to mate with the arm's tool flange. It's sized and shaped for a predictable contact patch with the ball, with mounting features that stay rigid through repeated bounces.</p>
-
-    <figure>
-      <figcaption>CAD render / photo of the end-effector goes here.</figcaption>
-    </figure>
-
-    <h3>Geometry</h3>
-    <p>Why we picked this paddle face — size, curvature, and the contact surface that keeps the bounce repeatable.</p>
-
-    <h3>Mount</h3>
-    <p>The bolt pattern and adapter ring that mate the paddle to the wrist flange.</p>
-
-    <h3>Iterations</h3>
-    <p>How the design evolved across test runs — what failed, what we tightened up, and what we'd change next.</p>
+    <p>
+      We designed the paddle end-effector to prioritize stable contact, consistent orientation, and repeatable bounce behavior.
+    </p>
+    <ul>
+      <li><strong>Design</strong> - Modeled a paddle gripper in Onshape using the official UR7e reference model to match mounting geometry precisely.</li>
+      <li><strong>Fabricate</strong> - 3D-printed in PLA and fit directly onto the arm; this direct fit was crucial for keeping the end effector flat during repeated balloon contact as opposed to having the arm hold a paddle for instance.</li>
+      <li><strong>Result</strong> - Achieved the surface area needed for both balloon and ball contact while keeping a low-profile form factor for more reliable, repeatable hits.</li>
+    </ul>
+    <div class="end-effector-gallery">
+      <figure>
+        <img src="assets/end_effector_1.png" alt="End-effector design view 1" />
+        <figcaption>End-effector view 1.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/end_effector_2.png" alt="End-effector design view 2" />
+        <figcaption>End-effector view 2.</figcaption>
+      </figure>
+    </div>
 
     <h2>Software architecture</h2>
-    <p>The juggling stack is split into ROS nodes that each own one job, connected by topics and services. Keeping the boundaries clean meant we could swap a controller or retune a predictor without touching the rest of the pipeline.</p>
-
     <figure>
-      <figcaption>System diagram: perception → predictor → planner → controller.</figcaption>
+      <img src="assets/design_software.png" alt="Software design architecture diagram" />
+      <figcaption>Software architecture.</figcaption>
     </figure>
 
     <h3>Nodes</h3>
     <ul>
-      <li><strong>Perception node</strong> — ingests camera frames and publishes ball position.</li>
-      <li><strong>Trajectory predictor</strong> — fits a projectile model to recent positions and publishes a predicted catch point and time.</li>
-      <li><strong>Planner</strong> — generates a joint-space trajectory from the current pose to the catch point.</li>
-      <li><strong>Bringup / state machine</strong> — coordinates startup, calibration, and the bounce-and-catch loop.</li>
+      <li><strong><code>aruco_node</code></strong> - finds an ArUco marker mounted on the robot base inside the RealSense color image and publishes its pose in the camera frame.</li>
+      <li><strong><code>static_camera_tf</code></strong> - turns that ArUco detection into a one-time <code>base_link → camera_link</code> static transform so every downstream frame is reachable from the robot tree.</li>
+      <li><strong><code>ball_detector</code></strong> - runs an HSV color mask on the RealSense point cloud, transforms the surviving points into <code>base_link</code>, and publishes the centroid as <code>/ball_pose</code>.</li>
+      <li><strong><code>trajectory_predictor</code></strong> - buffers the last twelve <code>/ball_pose</code> samples, runs a least-squares fit (linear in x and y, gravity-aware in z) to smooth the position and pull a velocity estimate out of the slope, and publishes the result as <code>/ball_state</code>.</li>
+      <li><strong><code>horizontal_pop_tracker</code></strong> - runs the high-rate control tick: calls MoveIt IK for a joint target and pushes it through a joint-velocity PID out to <code>/forward_velocity_controller/commands</code>.</li>
     </ul>
 
-    <h3>Controllers</h3>
-    <ul>
-      <li><strong>Joint controller</strong> — low-level position/velocity loop and the gains we landed on.</li>
-      <li><strong>Trajectory tracking</strong> — how planned waypoints are fed to the joint controller.</li>
-      <li><strong>Safety</strong> — joint limits, velocity caps, and the e-stop path.</li>
-    </ul>
+    <h3>Pipeline</h3>
+    <p>The diagram above traces the flow end-to-end.</p>
+    <ol>
+      <li>
+        <strong>Camera-to-arm calibration with ArUco.</strong>
+        We have an ArUco marker mounted on the UR7e base at a known offset. The aruco node picks it up in the RealSense color stream, and the static camera TF node chains the detected marker pose with that fixed marker-to-base offset to solve for the base-link to camera-link transform. The result gets latched as a static TF the first time it is solved, so from then on every ball detection comes out directly in base-link coordinates without any per-frame transform work (in the pipeline above, the parts involved here are realsense2_camera, aruco_node, static_camera_tf, and the tf_tree).
+      </li>
+      <li>
+        <strong>HSV ball detection.</strong>
+        The ball detector subscribes to the RealSense's depth-aligned color point cloud, runs an HSV mask on each point's packed RGB field, AND-s the result with a workspace bounding box, and averages the surviving points into a single centroid that gets published as the ball pose. We started out using YOLOv8 against the color image, but even with inference capped at 8 Hz it added too much latency before the predictor could fit a trajectory. Switching to HSV cut the per-frame cost down to a vectorized mask, which made the RealSense's RGB frame rate the bottleneck instead of our model (in the pipeline above, the parts involved here are realsense2_camera, the tf_tree, and ball_detector).
+      </li>
+      <li>
+        <strong>Tracking and the pop, both as PID on joint velocity.</strong>
+        On every control tick the horizontal pop tracker pulls the latest smoothed ball state from trajectory_predictor (which gives it both a denoised position and the velocity estimate the pop logic depends on), sets the paddle's XY target to the ball's current XY (with a calibrated paddle-to-ball offset baked in), keeps the Z target locked at the nominal paddle height, asks MoveIt IK for the joint configuration that puts the paddle there, and feeds the result through a 6-joint PID. The control law is <em>u = target_vel + K<sub>p</sub>(q<sup>*</sup> − q) + K<sub>i</sub>∫(q<sup>*</sup> − q)dt + K<sub>d</sub>(target_vel − q̇)</em>, with target_vel set to zero in the tracker, so it reduces to a PID on joint position error with a velocity-damping term. Crucially, the output <em>u</em> is a joint <em>velocity</em> command, not a position. It gets sent straight to the UR7e's forward velocity controller. The paddle therefore isn't snapping between setpoints; it's continuously chasing the ball's XY through joint-space velocity errors, which is what makes the tracking look smooth rather than stepwise.
+        <br /><br />
+        The vertical pop is a second instance of the same PID class, but with more aggressive gains (roughly 2× the horizontal Kp across the joints). The swap is gated by the ball's measured state: when its vertical velocity is past the descending threshold, the ball sits inside the clearance window above the paddle, <em>and</em> the predicted time-to-contact falls inside a small bounce-lead window, the controller flips the Z target to nominal Z plus pop height and uses the vertical PID for that tick. As soon as any of those conditions stops holding, it falls right back into the horizontal tracking loop on the next tick (in the pipeline above, the parts involved here are trajectory_predictor, the tf_tree, horizontal_pop_tracker, MoveIt, and forward_velocity_controller).
+      </li>
+    </ol>
   </main>
 
-  <footer class="site-footer">
-    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
-  </footer>
 </body>
 </html>

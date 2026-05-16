@@ -16,14 +16,12 @@
       <a href="index.html" class="brand">Robo<span>Ball</span></a>
       <ul>
         <li><a class="nav-link" href="goal.html">Goal</a></li>
-        <li><a class="nav-link" href="videos.html">Demos</a></li>
         <li><a class="nav-link" href="design.html">Design</a></li>
         <li><a class="nav-link" href="perception.html">Perception</a></li>
         <li><a class="nav-link" href="planning.html">Planning</a></li>
         <li><a class="nav-link" href="challenges.html">Challenges</a></li>
         <li><a class="nav-link" href="future.html">Future</a></li>
       </ul>
-      <a href="goal.html" class="btn btn-primary btn-sm">Get started</a>
     </nav>
   </header>
 
@@ -37,119 +35,170 @@
         </div>
       </div>
     </div>
-    <h1>A robot arm that <br /><span class="gradient-text"> won't drop the ball.</span></h1>
-    <p class="lead">
-      Robo Ball turns physics, perception, and motion planning into a robot that
-      bounces a ball in real time. Explore how we built it.
+    <h1><span class="gradient-text">Roboball</span></h1>
+    <p class="lead byline">
+      <strong>By Micah Mok, Aniket Mittal, Indraja Babu, Micah Hsu</strong><br />
+      <strong>for EECS 106A.</strong>
     </p>
-    <div class="cta">
-      <a class="btn btn-primary" href="goal.html">Learn about the project</a>
-      <a class="btn" href="design.html">Explore the design →</a>
-    </div>
+    <p class="lead hero-subtext">
+      Our goal was to combine control, perception and planning<br />
+      to control a robot arm to repeatedly bounce<br />
+      a balloon or ball.
+    </p>
+  </section>
 
+  <section class="home-video-section">
+    <div class="section-heading">
+      <h2>Project video</h2>
+    </div>
     <div class="hero-visual">
       <div class="hero-visual-frame">
-        <span class="hero-visual-placeholder">drop a hero image or video here</span>
+        <iframe
+          src="https://www.youtube.com/embed/4F8yc4VLmjg?autoplay=1&mute=1&playsinline=1&rel=0"
+          title="Roboball project video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
       </div>
-    </div>
-  </section>
-
-  <section class="logo-strip">
-    <p>Built with</p>
-    <div class="logos">
-      <span>ROS 2</span>
-      <span>Python</span>
-    </div>
-  </section>
-
-  <section class="feature-section">
-    <div class="feature-text">
-      <p class="eyebrow">Perception</p>
-      <h2>See the ball in real time, every frame.</h2>
-      <p>
-        A high-frame-rate camera and a tight detection pipeline locate the ball
-        with millisecond latency, so the robot has time to react before the ball
-        lands.
+      <p class="video-link">
+        <a href="https://youtu.be/4F8yc4VLmjg" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
       </p>
-      <a href="perception.html" class="arrow-link">Learn how perception works →</a>
     </div>
-    <div class="feature-visual tint-blue">perception preview</div>
-  </section>
-
-  <section class="feature-section reverse">
-    <div class="feature-text">
-      <p class="eyebrow">Planning</p>
-      <h2>Predict the trajectory, then move.</h2>
-      <p>
-        From a stream of ball positions we fit a projectile model, solve for the
-        catch point, and generate a joint trajectory the robot can actually
-        execute in time.
-      </p>
-      <a href="planning.html" class="arrow-link">See the planning stack →</a>
-    </div>
-    <div class="feature-visual tint-purple">trajectory preview</div>
-  </section>
-
-  <section class="feature-section">
-    <div class="feature-text">
-      <p class="eyebrow">Design</p>
-      <h2>A CADed paddle, driven by a clean node graph.</h2>
-      <p>
-        We designed the end-effector in CAD to fit the arm's tool flange, then
-        built the ROS nodes and controllers that turn camera frames into joint
-        commands.
-      </p>
-      <a href="design.html" class="arrow-link">See the end-effector and node graph →</a>
-    </div>
-    <div class="feature-visual tint-pink">CAD render</div>
   </section>
 
   <div class="section-heading">
     <h2>Explore the project</h2>
-    <p>Every part of how we built a juggling robot, in one place.</p>
   </div>
 
   <section class="card-grid">
     <a class="card" href="goal.html">
-      <div class="card-thumb tint-blue"></div>
+      <img src="assets/roboball_goal.png" alt="Roboball goal overview" class="card-thumb-image" />
       <h3>Goal</h3>
-      <p>What we set out to build, and why ball juggling is hard.</p>
     </a>
     <a class="card" href="design.html">
-      <div class="card-thumb tint-purple"></div>
+      <img src="assets/end_effector_1.png" alt="End-effector design preview" class="card-thumb-image" />
       <h3>Design</h3>
-      <p>The CADed end-effector and the ROS nodes that drive the robot.</p>
     </a>
     <a class="card" href="perception.html">
-      <div class="card-thumb tint-pink"></div>
+      <img src="assets/perception_realsense.jpg" alt="RealSense camera" class="card-thumb-image" />
       <h3>Perception</h3>
-      <p>How the robot sees and tracks the ball in real time.</p>
     </a>
     <a class="card" href="planning.html">
-      <div class="card-thumb tint-green"></div>
+      <img src="assets/planning_chart.png" alt="Predicted ball trajectory with HSV detections" class="card-thumb-image" />
       <h3>Planning</h3>
-      <p>Trajectory generation and control for catching and tossing.</p>
     </a>
     <a class="card" href="challenges.html">
-      <div class="card-thumb tint-orange"></div>
+      <img src="assets/challenges_action.png" alt="UR7e mid-bounce with the orange ball in the air" class="card-thumb-image" />
       <h3>Challenges</h3>
-      <p>The hardest problems we ran into and how we worked around them.</p>
     </a>
     <a class="card" href="future.html">
-      <div class="card-thumb tint-yellow"></div>
+      <img src="assets/future_concept.png" alt="Concept render of a future juggling robot" class="card-thumb-image" />
       <h3>Future improvements</h3>
-      <p>What we'd build next given more time.</p>
     </a>
   </section>
 
-  <section class="cta-banner">
-    <h2>Curious how it all comes together?</h2>
-    <p>Start with the project goal — a quick read on what we built and why.</p>
-    <a href="goal.html" class="btn">Read the project goal →</a>
+  <section class="team-section">
+    <div class="section-heading">
+      <h2>Team</h2>
+    </div>
+    <div class="team-list">
+      <article class="team-member">
+        <div class="team-photo-placeholder" aria-hidden="true">Photo</div>
+        <div class="team-info">
+          <h3>Micah Mok</h3>
+          <p>
+            Team member placeholder description. Add a short bio, role focus,
+            and contributions to the Roboball project.
+          </p>
+        </div>
+      </article>
+      <article class="team-member">
+        <div class="team-photo-placeholder" aria-hidden="true">Photo</div>
+        <div class="team-info">
+          <h3>Indraja Babu</h3>
+          <p>
+            Team member placeholder description. Add a short bio, role focus,
+            and contributions to the Roboball project.
+          </p>
+        </div>
+      </article>
+      <article class="team-member">
+        <img src="assets/aniket_pic.png" alt="Aniket Mittal" class="team-photo" />
+        <div class="team-info">
+          <h3>Aniket Mittal</h3>
+          <p>
+            Aniket is a 2nd Year EECS + Business student. He's passionate about
+            learning how to golf, watching F1 and cars. Worked on perception
+            (HSV filtering) and portions of the control / planning pipeline.
+          </p>
+        </div>
+      </article>
+      <article class="team-member">
+        <div class="team-photo-placeholder" aria-hidden="true">Photo</div>
+        <div class="team-info">
+          <h3>Micah Hsu</h3>
+          <p>
+            Team member placeholder description. Add a short bio, role focus,
+            and contributions to the Roboball project.
+          </p>
+        </div>
+      </article>
+    </div>
   </section>
 
-  <footer class="site-footer">
-    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
-  </footer>
+  <section class="end-banner">
+    <p>Roboball for EECS 106A</p>
+  </section>
+
+  <script>
+    (function () {
+      const hero = document.querySelector(".hero");
+      const leftArm = document.querySelector(".robot-arm-left");
+      const rightArm = document.querySelector(".robot-arm-right");
+      const ballX = document.querySelector(".ball-x");
+
+      if (!hero || !leftArm || !rightArm || !ballX) return;
+
+      function updateBallPath() {
+        if (window.matchMedia("(max-width: 600px)").matches) return;
+
+        const heroRect = hero.getBoundingClientRect();
+        const leftRect = leftArm.getBoundingClientRect();
+        const rightRect = rightArm.getBoundingClientRect();
+        const ballSize = ballX.getBoundingClientRect().width || 38;
+
+        // Approximate tip coordinates on each arm image where the paddle sits.
+        const leftTipX = leftRect.left + leftRect.width * 0.76;
+        const leftTipY = leftRect.top + leftRect.height * 0.60;
+        const rightTipX = rightRect.left + rightRect.width * 0.24;
+        const rightTipY = rightRect.top + rightRect.height * 0.60;
+
+        let startX = leftTipX - heroRect.left - ballSize / 2;
+        let endX = rightTipX - heroRect.left - ballSize / 2;
+        if (!Number.isFinite(startX) || !Number.isFinite(endX)) return;
+        if (endX <= startX) {
+          const temp = endX;
+          endX = startX;
+          startX = temp;
+        }
+
+        const trackY = (leftTipY + rightTipY) / 2 - heroRect.top;
+        const safeTop = Math.max(0, trackY);
+
+        hero.style.setProperty("--ball-start-x", `${startX}px`);
+        hero.style.setProperty("--ball-travel-x", `${endX - startX}px`);
+        hero.style.setProperty("--ball-track-top", `${safeTop}px`);
+      }
+
+      const rafUpdate = () => requestAnimationFrame(updateBallPath);
+      window.addEventListener("resize", rafUpdate);
+      window.addEventListener("orientationchange", rafUpdate);
+      leftArm.addEventListener("load", rafUpdate);
+      rightArm.addEventListener("load", rafUpdate);
+      window.addEventListener("load", rafUpdate);
+      rafUpdate();
+    })();
+  </script>
 </body>
 </html>

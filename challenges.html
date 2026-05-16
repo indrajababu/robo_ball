@@ -15,7 +15,6 @@
       <a href="index.html" class="brand">Robo<span>Ball</span></a>
       <ul>
         <li><a class="nav-link" href="goal.html">Goal</a></li>
-        <li><a class="nav-link" href="videos.html">Demos</a></li>
         <li><a class="nav-link" href="design.html">Design</a></li>
         <li><a class="nav-link" href="perception.html">Perception</a></li>
         <li><a class="nav-link" href="planning.html">Planning</a></li>
@@ -27,28 +26,28 @@
 
   <main>
     <h1>Challenges</h1>
-    <p class="subtitle">The hardest problems we ran into, and how we worked around them.</p>
 
-    <h2>Perception under varying lighting</h2>
-    <p>Describe issues with color thresholding, glare, motion blur, and how you addressed them.</p>
+    <h2>Perception</h2>
+    <ul>
+      <li>Ball detection was unreliable with either HSV or YOLO at first. Iterated between both before settling on HSV as default.</li>
+      <li>Recovering the camera to robot transform required an ArUco tag on the base as a localization anchor.</li>
+      <li>Shifted away from trajectory prediction entirely, replacing it with visual servoing for more robust real-time tracking.</li>
+      <li>Realsense RGB was maximum at 30 HZ which was the beginning of our pipeline which would influence the speed of our later pipeline. This made it hard to get good results with the faster-moving ball.</li>
+    </ul>
 
-    <h2>Latency budget</h2>
-    <p>Camera capture + processing + planning + actuation has to fit inside the ball's flight time. What was your latency budget and where did time go?</p>
+    <h2>Motion Planning</h2>
+    <ul>
+      <li>Went through strike planner, rhythmic bumping, horizontal paddle, and balloon-bounce mode before finding something that worked.</li>
+      <li>Dropped full vertical tracking late in the project. Final strategy: hold position and pop when ball is roughly 6 inches above the paddle.</li>
+    </ul>
 
-    <h2>Mechanical limits</h2>
-    <p>Backlash, motor saturation, vibration — anything in hardware that bottlenecked performance.</p>
-
-    <h2>Calibration drift</h2>
-    <p>How calibration changed during the project and what you did about it.</p>
-
-    <blockquote>
-      Tip: this section is gold for a project page — readers (and recruiters) love
-      seeing how you reason through hard problems, not just the polished result.
-    </blockquote>
+    <h2>Inverse Kinematics &amp; Arm Control</h2>
+    <ul>
+      <li>Had to loosen orientation constraints and shorten timeouts to get reliable solutions under time pressure.</li>
+      <li>Tool frame orientation (offsets and quaternions) required repeated corrections throughout the project.</li>
+      <li>Needed heavy PID K-value tuning to get a smooth and consistent bounce.</li>
+    </ul>
   </main>
 
-  <footer class="site-footer">
-    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
-  </footer>
 </body>
 </html>

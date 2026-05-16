@@ -15,7 +15,6 @@
       <a href="index.html" class="brand">Robo<span>Ball</span></a>
       <ul>
         <li><a class="nav-link" href="goal.html">Goal</a></li>
-        <li><a class="nav-link" href="videos.html">Demos</a></li>
         <li><a class="nav-link" href="design.html">Design</a></li>
         <li><a class="nav-link" href="perception.html">Perception</a></li>
         <li><a class="nav-link" href="planning.html">Planning</a></li>
@@ -27,35 +26,23 @@
 
   <main>
     <h1>Future Improvements</h1>
-    <p class="subtitle">What we'd build next given more time.</p>
+    <p class="subtitle">These are some ideas we had for how to improve the robot to get more continuous bouncing and hopefully get it working more consecutively on a ball.</p>
 
-    <h2>Hardware</h2>
+    <h2>Sensing</h2>
     <ul>
-      <li>Faster actuators / lower-latency drivers</li>
-      <li>Improved end-effector geometry for catching reliability</li>
-      <li>Stiffer frame to reduce vibration</li>
+      <li>Try utilizing only the depth/infrared camera so we would not have to worry about the 30 Hz RGB limit on Realsense.</li>
+      <li>Fuse HSV and depth clustering for more reliable centroid measurements.</li>
+      <li>Track the ball across frames and smooth out noise to prevent perceived jittery motion.</li>
     </ul>
 
-    <h2>Perception</h2>
+    <h2>Planning</h2>
     <ul>
-      <li>Stereo or depth camera for direct 3D ball position</li>
-      <li>Learned ball detector robust to lighting/background</li>
-      <li>Multi-ball tracking</li>
+      <li>Time the latency delay between sensing and the forward velocity controller and adjust paddle pop accordingly.</li>
+      <li>Currently track velocity realtime -> keep a running state of ball velocity to ensure smoother timing.</li>
+      <li>Dynamically update strike height based on current paddle position and the ball velocity.</li>
+      <li>Paddle currently remains parallel to the ground -> predict / tune end effector angle to be more adjustable for random behavior (especially seen in the balloon case).</li>
     </ul>
-
-    <h2>Planning &amp; control</h2>
-    <ul>
-      <li>Model-predictive control with online dynamics learning</li>
-      <li>Reinforcement learning for tossing policy</li>
-      <li>Recover gracefully from missed catches</li>
-    </ul>
-
-    <h2>Stretch goals</h2>
-    <p>Two-ball juggling, juggling against a human partner, or juggling balls with different masses.</p>
   </main>
 
-  <footer class="site-footer">
-    Robo Ball Project · <a href="https://github.com/">View on GitHub</a>
-  </footer>
 </body>
 </html>
